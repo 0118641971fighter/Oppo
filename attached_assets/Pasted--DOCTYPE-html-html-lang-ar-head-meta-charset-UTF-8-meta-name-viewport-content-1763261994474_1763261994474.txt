@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام المخالفات - OPPO EGYPT</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; padding: 0; background-color: #f2f2f2; }
+
+    /* Splash Screen */
+    #splash {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #00bfa5, #1de9b6);
+      color: white;
+      font-size: 3em;
+      font-weight: bold;
+      text-align: center;
+      z-index: 10;
+    }
+
+    #splash p { margin-top: 20px; font-size: 1.2em; }
+
+    /* Login Screen */
+    #login {
+      display: none;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-box h2 { margin-bottom: 20px; }
+
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #00bfa5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    /* Home Page / مخالفات */
+    #home {
+      display: none;
+      padding: 20px;
+    }
+
+    #home h1 { text-align: center; color: #00bfa5; margin-bottom: 20px; }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .controls input {
+      padding: 10px;
+      margin-right: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 300px;
+    }
+
+    .controls button {
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #00bfa5;
+      color: white;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #00bfa5;
+      color: white;
+    }
+
+    table tr:hover { background-color: #f1f1f1; }
+
+    .action-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .edit-btn { background-color: #ffb300; color: white; }
+    .delete-btn { background-color: #e53935; color: white; }
+
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; align-items: center; }
+      .controls input { margin: 0 0 10px 0; width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Splash Screen -->
+  <div id="splash">
+    OPPO EGYPT
+    <p>نظام المخالفات</p>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login">
+    <div class="login-box">
+      <h2>تسجيل الدخول</h2>
+      <input type="text" id="username" placeholder="اسم المستخدم">
+      <input type="password" id="password" placeholder="كلمة المرور">
+      <button onclick="login()">دخول</button>
+    </div>
+  </div>
+
+  <!-- Home Page -->
+  <div id="home">
+    <h1>المخالفات</h1>
+
+    <div class="controls">
+      <input type="text" id="newViolation" placeholder="أدخل نص المخالفة">
+      <button onclick="addViolation()">إضافة مخالفة</button>
+    </div>
+
+    <table id="violationsTable">
+      <thead>
+        <tr>
+          <th>رقم</th>
+          <th>المخالفة</th>
+          <th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- سيتم ملء الجدول هنا -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // إزالة Splash Screen بعد 2.5 ثانية
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('login').style.display = 'flex';
+    }, 2500);
+
+    // بيانات تجريبية
+    let violations = JSON.parse(localStorage.getItem('violations')) || [
+      "الخروج من الصاله ب3 منديل",
+      "الخروج من الصاله ب2 منديل + سجائر + التحدث الغير لائق مع الاداره",
+      "الخروج من الصاله ب2 منديل +اسم خطأ",
+      "حلوى + ابلاغ الاسم خطأ + ابلاغ مره اخري اسم خطأ",
+      "دخول ب محفظه بدون علم (أول مره)"
+    ];
+
+    function saveViolations() {
+      localStorage.setItem('violations', JSON.stringify(violations));
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#violationsTable tbody");
+      tbody.innerHTML = "";
+      violations.forEach((v, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${v}</td>
+          <td>
+            <button class="action-btn edit-btn" onclick="editViolation(${i})">تعديل</button>
+            <button class="action-btn delete-btn" onclick="deleteViolation(${i})">حذف</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addViolation() {
+      const input = document.getElementById('newViolation');
+      const value = input.value.trim();
+      if(value === "") { alert("الرجاء إدخال نص المخالفة"); return; }
+      violations.push(value);
+      input.value = "";
+      saveViolations();
+      renderTable();
+    }
+
+    function editViolation(index) {
+      const newValue = prompt("تعديل نص المخالفة:", violations[index]);
+      if(newValue !== null && newValue.trim() !== "") {
+        violations[index] = newValue.trim();
+        saveViolations();
+        renderTable();
+      }
+    }
+
+    function deleteViolation(index) {
+      if(confirm("هل أنت متأكد من حذف هذه المخالفة؟")) {
+        violations.splice(index, 1);
+        saveViolations();
+        renderTable();
+      }
+    }
+
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      if(username === 'admin' && password === '1234') {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('home').style.display = 'block';
+        renderTable();
+      } else {
+        alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+      }
+    }
+  </script>
+
+</body>
+</html>
