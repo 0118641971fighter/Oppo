@@ -1,7 +1,8 @@
 [build]
   base = "client/"
-  install = "npm install"
-  command = "npm run build"
+  # Install dependencies, then run the build command directly, bypassing package.json
+  command = "npm install && npx vite build"
+  # The build output is in 'dist' relative to the base directory
   publish = "dist"
 
 [[redirects]]
