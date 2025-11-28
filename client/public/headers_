@@ -1,7 +1,2 @@
-# Correct MIME type for JavaScript files
-*.js
+/assets/*
   Content-Type: application/javascript
-
-# Correct MIME type for JavaScript Map files
-*.js.map
-  Content-Type: application/json
