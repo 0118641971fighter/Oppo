@@ -7,8 +7,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        foreground: "#0f172a", // يمكنك استخدام أي قيمة لونية
-        mutedForeground: "#6b7280" // إذا كنت تستخدم متغيرات أخرى
+        background: "#0f172a", // استخدم القيمة من ملف index.css
       }
     }
   },
