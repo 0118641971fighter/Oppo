@@ -1,7 +1,7 @@
-// App.tsx (النسخة النهائية: إصلاح [object Object] + تصميم هيدر Oppo + تحسين التصدير)
+// App.tsx (Modified for Vercel deployment)
 // -----------------------------------------------
 
-import { Route } from "wouter";
+import { Route, Switch } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient"; 
 import { Toaster } from "@/components/ui/toaster";
@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react"; 
 
 // ** تم استيراد ExcelJS هنا بشكل ديناميكي داخل دالة exportToExcel
-
 
 // ----------------------
 // USERS
@@ -164,7 +163,6 @@ userId: string;
 position: string;   
 }
 
-
 const REASON_OPTIONS = [
 "زي مخالف",
 "خروج بمعدات وماتريال",
@@ -174,8 +172,7 @@ const REASON_OPTIONS = [
 "دخول بالفون الشخصي", 
 "مخالفة التعليمات",
 "أسلوب غير لائق",
-  "نسيان الزي الرسمي",
-
+"نسيان الزي الرسمي",
 ];
 const REASON_OPTIONS_ID = "reason-list";
 
@@ -187,7 +184,6 @@ const DEDUCTION_OPTIONS = [
 "خصم ثلاثة أيام",
 ];
 const DEDUCTION_OPTIONS_ID = "deduction-list";
-
 
 function ViolationsPage() {
 const [violations, setViolations] = useState<Violation[]>([]);
@@ -221,7 +217,6 @@ const [lastExportedId, setLastExportedId] = useState<number>(() => {
   const saved = localStorage.getItem('lastExportedId');
   return saved ? parseInt(saved, 10) : 0;
 });
-
 
 // ----------------------------------------------------
 // 💾 إدارة حالة الحفظ التلقائي
@@ -285,7 +280,6 @@ minute: '2-digit',
 hour12: false
 });
 
-
 const newViolation: Violation = {
 id: violations.length > 0 ? violations[violations.length - 1].id + 1 : 1,
 name: finalNameForExport, 
@@ -305,7 +299,6 @@ setReason("");
 setDeduction(""); 
 setPosition("");
 };
-
 
 // 🚀 دالة معالجة تغيير الاسم
 const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -480,7 +473,6 @@ setEditedDeduction('');
 setEditedDate('');
 setEditedTime('');
 };
-
 
 const handleLogout = () => { 
 localStorage.removeItem("loggedIn");
@@ -676,7 +668,6 @@ window.close();
 printWindow.document.close();
 };
 
-
 // 🚀 دالة استيراد بيانات الموظفين (معدلة لاستخراج النص النظيف من الكائنات)
 const importEmployeeData = async (file: File) => {
 try {
@@ -751,7 +742,6 @@ alert("فشل الاستيراد. يرجى التأكد من أن الملف ب�
 }
 };
 
-
 // 🆕 دالة لفلترة الموظفين في النافذة المنبثقة
 const filteredEmployees = employees.filter(emp => {
 if (!searchModalQuery) return false;
@@ -786,7 +776,6 @@ return (
 </div>
 </div>
 </div>
-
 
 {/* حاوية أزرار الإجراءات العلوية */}
 <div className="flex space-x-4 space-x-reverse">
@@ -836,7 +825,6 @@ className="bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg px-4 py
 </Button>
 </div>
 </div>
-
 
 {/* حقول الإدخال */}
 <div className="bg-white p-6 rounded-xl shadow-md mb-6 grid grid-cols-5 gap-4 border-t-4 border-green-600"> 
@@ -939,7 +927,6 @@ className="bg-gray-700 hover:bg-gray-800 text-white font-bold rounded-lg px-6 py
 </div>
 </div>
 
-
 {/* تعريف قوائم Datalist للخيارات الثابتة */}
 <datalist id={REASON_OPTIONS_ID}> 
 {REASON_OPTIONS.map((option, index) => (
@@ -969,7 +956,6 @@ className="bg-gray-700 hover:bg-gray-800 text-white font-bold rounded-lg px-6 py
 <option key={index} value={emp.userId} />
 ))}
 </datalist>
-
 
 {/* جدول عرض المخالفات */}
 <div className="overflow-x-auto">
@@ -1124,7 +1110,6 @@ className="text-center text-xs"
 )}
 </td>
 
-
 {/* 🛑 الإجراءات */}
 <td className="p-3">
 {editingId === v.id ? (
@@ -1164,7 +1149,6 @@ className="bg-red-600 hover:bg-red-700 text-white text-sm h-8"
 </tbody>
 </table>
 </div>
-
 
 {/* نافذة البحث المنبثقة (Search Modal) */}
 {isSearchModalOpen && (
@@ -1219,11 +1203,9 @@ onClick={() => handleSelectEmployeeFromSearch(emp)}
 </div>
 )}
 
-
 </div>
 );
 }
-
 
 // ----------------------
 // Main App Component
@@ -1232,11 +1214,28 @@ function App() {
 return (
 <QueryClientProvider client={queryClient}>
 <TooltipProvider>
+<Switch>
 <Route path="/" component={Splash} />
 <Route path="/login" component={Login} />
 <Route path="/violations">
 <PrivateRoute component={ViolationsPage} />
 </Route>
+{/* Fallback route for unmatched paths */}
+<Route>
+<div className="min-h-screen flex items-center justify-center bg-gray-100">
+<div className="text-center p-8 bg-white rounded-lg shadow-lg">
+<h1 className="text-2xl font-bold text-gray-800 mb-4">404 - Page Not Found</h1>
+<p className="text-gray-600">The page you are looking for does not exist.</p>
+<Button 
+onClick={() => window.location.href = "/"}
+className="mt-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg px-4 py-2"
+>
+Go to Home
+</Button>
+</div>
+</div>
+</Route>
+</Switch>
 <Toaster />
 </TooltipProvider>
 </QueryClientProvider>
